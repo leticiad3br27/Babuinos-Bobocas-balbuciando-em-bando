@@ -1,0 +1,24 @@
+{
+  "name": "css-medieval-app",
+  "version": "1.0.0",
+  "description": "A responsive web application with a medieval theme, featuring animations and an attractive design.",
+  "main": "src/index.html",
+  "scripts": {
+    "start": "live-server src",
+    "build": "npm run build-css",
+    "build-css": "node-sass src/styles/main.scss dist/styles/main.css"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "node-sass": "^6.0.0",
+    "live-server": "^1.2.1"
+  },
+  "keywords": [
+    "css",
+    "medieval",
+    "responsive",
+    "animations"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}

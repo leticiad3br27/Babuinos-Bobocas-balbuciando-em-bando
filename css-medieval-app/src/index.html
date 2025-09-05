@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ficha Medieval — 3DeT Victory</title>
+    <link rel="stylesheet" href="./styles/main.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=MedievalSharp&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="title">🛡️ Ficha Medieval — 3DeT Victory</div>
+      <div class="actions">
+        <button id="exportBtn">Exportar JSON</button>
+        <button id="importBtn" class="secondary">Importar JSON</button>
+        <input id="importFile" type="file" accept="application/json" style="display:none" />
+        <button id="printBtn" class="secondary">Imprimir / PDF</button>
+        <button id="resetBtn" class="danger">Zerar Tudo</button>
+        <button id="tutorialBtn" class="secondary">Tutorial</button> <!-- Botão Tutorial adicionado -->
+      </div>
+    </header>
+
+    <div class="grid cols-3">
+      <section class="card">
+        <h2>Identificação</h2>
+        <div class="grid cols-2">
+          <div class="field"><label>Nome</label><input id="nome" type="text" placeholder="Ex.: Ágata, Major Ninja..."/></div>
+          <div class="field"><label>Jogador(a)</label><input id="jogador" type="text" placeholder="Seu nome"/></div>
+        </div>
+        <div class="spacer"></div>
+        <div class="grid cols-2">
+          <div class="field">
+            <label>Arquétipo</label>
+            <select id="arquetipo"></select>
+            <div class="small">Arquétipos aplicam pacotes de vantagens/desvantagens.
+              <span class="hint">Você pode editar os pacotes após escolher.</span>
+            </div>
+          </div>
+          <div class="field"><label>Nível de Pontos (build)</label>
+            <input id="buildPoints" type="number" min="1" step="1" value="18"/>
+            <div class="small">Defina os pontos totais para gastar (atributos + perícias + vantagens − desvantagens).</div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="kpi">
+          <div class="box"><div class="label">Pontos Restantes</div><div id="ptsRest" class="value">0</div></div>
+          <div class="box"><div class="label">PA</div><div id="pa" class="value">0</div></div>
+          <div class="box"><div class="label">PM</div><div id="pm" class="value">0</div></div>
+          <div class="box"><div class="label">PV</div><div id="pv" class="value">0</div></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Atributos</h2>
+        <div class="grid cols-3">
+          <div class="field"><label>Poder (P) — também define PA</label><input id="attrP" type="number" min="0" step="1" value="1"/></div>
+          <div class="field"><label>Habilidade (H) — PM = H × 5</label><input id="attrH" type="number" min="0" step="1" value="1"/></div>
+          <div class="field"><label>Resistência (R) — PV = R × 5</label><input id="attrR" type="number" min="0" step="1" value="1"/></div>
+        </div>
+        <div class="spacer"></div>
+        <div class="notice">Regra rápida: <strong>PA = P</strong>, <strong>PM = H × 5</strong>, <strong>PV = R × 5</strong>. (+Vida concede +10 PV por compra).</div>
+      </section>
+
+      <section class="card">
+        <h2>Recursos & Anotações</h2>
+        <div class="grid cols-2">
+          <div class="field"><label>PV atuais</label><input id="pvAtual" type="number" min="0" value="0"/></div>
+          <div class="field"><label>PM atuais</label><input id="pmAtual" type="number" min="0" value="0"/></div>
+        </div>
+        <div class="spacer"></div>
+        <div class="field"><label>Inventário (livre)</label><textarea id="inventario" rows="4" placeholder="Itens, artefatos, equipamentos..."></textarea></div>
+        <div class="spacer"></div>
+        <div class="field"><label>Notas</label><textarea id="notas" rows="4" placeholder="História, personalidade, objetivos..."></textarea></div>
+      </section>
+    </div>
+
+    <div class="spacer"></div>
+
+    <section class="card">
+      <h2>Perícias <span class="hint">(cada perícia custa 1 pt)</span></h2>
+      <div class="row" style="justify-content: space-between">
+        <div class="small">Sugestão rápida: Luta, Esporte, Manha, Percepção, Mística, Máquinas, Sobrevivência, Arte, Influência, Saber, Medicina, Animais.</div>
+        <div class="row">
+          <input id="novaPericiaNome" type="text" placeholder="Nome da perícia" style="width:220px"/>
+          <button id="addPericia">Adicionar</button>
+        </div>
+      </div>
+      <div class="spacer"></div>
+      <table id="tblPericias">
+        <thead><tr><th>Perícia</th><th class="right">Custo</th><th class="right">Ações</th></tr></thead>
+        <tbody></tbody>
+        <tfoot><tr><td class="right"><strong>Total</strong></td><td class="right" id="periciasTotal">0</td><td></td></tr></tfoot>
+      </table>
+    </section>
+
+    <div class="grid cols-2">
+      <section class="card">
+        <h2>Vantagens</h2>
+        <div class="row" style="justify-content: space-between">
+          <div class="small">Selecione na loja abaixo ou adicione customizadas.</div>
+          <div class="row">
+            <select id="vantagemCatalog"></select>
+            <button id="addVantagemFromCatalog">Adicionar da Loja</button>
+          </div>
+        </div>
+        <div class="spacer"></div>
+        <div class="row">
+          <input id="vantNome" type="text" placeholder="Nome da vantagem" style="width:200px"/>
+          <input id="vantCusto" type="number" step="1" value="1" style="width:100px"/>
+          <input id="vantObs" type="text" placeholder="Observação (ex.: +Vida = +10 PV)" style="flex:1"/>
+          <button id="addVantagem">Adicionar</button>
+        </div>
+        <div class="spacer"></div>
+        <table id="tblVantagens">
+          <thead><tr><th>Vantagem</th><th>Obs.</th><th class="right">Custo</th><th class="right">Ações</th></tr></thead>
+          <tbody></tbody>
+          <tfoot><tr><td class="right" colspan="2"><strong>Total</strong></td><td class="right" id="vantTotal">0</td><td></td></tr></tfoot>
+        </table>
+      </section>
+
+      <section class="card">
+        <h2>Desvantagens <span class="hint">(limite recomendado: até −2 pts fora de arquétipo)</span></h2>
+        <div class="row" style="justify-content: space-between">
+          <div class="small">Desvantagens de arquétipo <em>não contam</em> para o limite.</div>
+          <div class="row">
+            <select id="desvantagemCatalog"></select>
+            <button id="addDesvantagemFromCatalog">Adicionar da Loja</button>
+          </div>
+        </div>
+        <div class="spacer"></div>
+        <div class="row">
+          <input id="desvNome" type="text" placeholder="Nome da desvantagem" style="width:220px"/>
+          <input id="desvCusto" type="number" step="1" value="-1" style="width:100px"/>
+          <input id="desvObs" type="text" placeholder="Observação" style="flex:1"/>
+          <button id="addDesvantagem">Adicionar</button>
+        </div>
+        <div class="spacer"></div>
+        <table id="tblDesvantagens">
+          <thead><tr><th>Desvantagem</th><th>Obs.</th><th class="right">Custo</th><th class="right">Ações</th></tr></thead>
+          <tbody></tbody>
+          <tfoot><tr><td class="right" colspan="2"><strong>Total</strong></td><td class="right" id="desvTotal">0</td><td></td></tr></tfoot>
+        </table>
+        <div class="spacer"></div>
+        <div id="desvAviso" class="notice" style="display:none">⚠️ Você excedeu o limite recomendado de desvantagens (−2). Ajuste se desejar seguir a regra de criação.</div>
+      </section>
+    </div>
+
+    <section class="card">
+      <h2>Técnicas</h2>
+      <div class="small">Técnicas contam como vantagens para custo, mas você pode controlá-las separadamente aqui (para referência e pré-requisitos).</div>
+      <div class="spacer"></div>
+      <div class="row">
+        <input id="tecNome" type="text" placeholder="Nome da técnica" style="width:260px"/>
+        <input id="tecTipo" type="text" placeholder="Truque, Comum ou Lendária" style="width:200px"/>
+        <input id="tecCusto" type="number" step="1" value="0" style="width:100px"/>
+        <input id="tecReq" type="text" placeholder="Pré-requisitos (ex.: H5, Luta, Magia)" style="flex:1"/>
+        <button id="addTecnica">Adicionar</button>
+      </div>
+      <div class="spacer"></div>
+      <table id="tblTecnicas">
+        <thead><tr><th>Técnica</th><th>Tipo</th><th>Pré-requisitos</th><th class="right">Custo (XP ou pt)</th><th class="right">Ações</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Resumo de Pontos</h2>
+      <table>
+        <tbody>
+          <tr><td>Atributos (P+H+R)</td><td class="right" id="ptsAtributos">0</td></tr>
+          <tr><td>Perícias (1 pt cada)</td><td class="right" id="ptsPericias">0</td></tr>
+          <tr><td>Vantagens</td><td class="right" id="ptsVantagens">0</td></tr>
+          <tr><td>Desvantagens</td><td class="right pill-bad" id="ptsDesvantagens">0</td></tr>
+          <tr><td>Arquétipo</td><td class="right" id="ptsArquetipo">0</td></tr>
+        </tbody>
+        <tfoot>
+          <tr><th>Total Gasto</th><th class="right" id="totalGasto">0</th></tr>
+        </tfoot>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Experiência & Evolução</h2>
+      <div class="grid cols-3">
+        <div class="field">
+          <label>XP Total</label>
+          <input id="xpTotal" type="number" min="0" step="1" value="0"/>
+          <div class="small">Cada 10XP = 1 ponto de personagem.<br>Acima de 5 em um atributo: 20XP por ponto.</div>
+        </div>
+        <div class="field">
+          <label>Classificação</label>
+          <div id="xpClass" class="value">Iniciante</div>
+          <div class="small">Iniciante: até 19 pts<br>Herói: 20–34 pts<br>Veterano: 35+ pts</div>
+        </div>
+        <div class="field">
+          <label>Pontos por XP</label>
+          <div id="xpPts" class="value">0</div>
+          <div class="small">Use para evoluir atributos, vantagens, etc.</div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="small" style="opacity:.9; text-align:center; margin: 18px 0 40px;">
+      Feito para aventuras de <strong>fantasia medieval</strong> em <strong>3DeT Victory</strong>. Salva automaticamente no navegador. — por você ;)
+    </footer>
+  </div>
+
+  <script>
+  // ---------------------------
+  // Dados base e utilidades
+  // ---------------------------
+  const $ = (sel) => document.querySelector(sel);
+  const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+  const defaultCatalogs = {
+    periciasSugestoes: [
+      'Luta','Esporte','Manha','Percepção','Mística','Máquinas','Sobrevivência','Arte','Influência','Saber','Medicina','Animais'
+    ],
+ vantagens: [
+{nome: '+Vida', custo: 1, obs: '+10 PV por compra', tag: 'vida'},
+{nome: 'Vigoroso', custo: 1, obs: 'R+2 em testes de saúde', tag: 'resistência'},
+{nome: 'Voo', custo: 1, obs: 'Locomoção aérea (custa 2PM para levantar voo)', tag: 'movimento'},
+{nome: 'Transformação', custo: 1, obs: '1–2 pt (duas fichas, 1: combina desvantagens / 2: desvantagens por forma)', tag: 'forma'},
+{nome: 'Magia', custo: 2, obs: 'Usa Mística para atacar/defender em conflitos violentos', tag: 'mística'},
+{nome: 'Alcance', custo: 1, obs: 'Aumenta alcance de ataques/técnicas', tag: 'combate'},
+{nome: 'Ataque Especial', custo: 1, obs: 'Golpe com modificadores (ex.: Perigoso, Preciso, Penetrante)', tag: 'combate'}
+],
+desvantagens: [
+{nome: 'Antipático', custo: -1, obs: 'Piora interações sociais'},
+{nome: 'Código', custo: -1, obs: 'Conjunto de regras que você segue'},
+{nome: 'Ponto Fraco', custo: -1, obs: 'Algo explorável por inimigos'},
+{nome: 'Infame', custo: -1, obs: 'Reputação ruim'},
+{nome: 'Monstruoso', custo: -1, obs: 'Aparência assusta / hostiliza'},
+{nome: 'Ambiente', custo: -1, obs: 'Fraqueza ligada a ambiente'},
+{nome: 'Fúria', custo: -1, obs: 'Pode perder o controle'}
+],
+arquetipos: [
+{id:'humano',nome:'Humano (0 pt)',custo:0,pacoteVant:[{nome:'Mais Além',custo:0,obs:'1x por cena, gastar 2PM para ter Ganho em 1 teste'}],pacoteDesv:[]},
+{id:'aberrante',nome:'Aberrante (1 pt)',custo:1,pacoteVant:[{nome:'Deformidade',custo:0,obs:'Escolha 1 perícia; +1 no atributo correspondente ao testá-la'},{nome:'Teratismo',custo:0,obs:'Ganha 1 Técnica Comum (requisitos ainda se aplicam)'}],pacoteDesv:[{nome:'Monstruoso (de arquétipo)',custo:0,obs:'Não conta no limite de −2'}]},
+{id:'abissal',nome:'Abissal (1 pt)',custo:1,pacoteVant:[{nome:'Ágil',custo:0},{nome:'Desfavor',custo:0,obs:'Gaste ação e 3PM para impor Perda a alvo próximo'}],pacoteDesv:[{nome:'Infame',custo:0}]},
+{id:'alien',nome:'Alien (1 pt)',custo:1,pacoteVant:[{nome:'Talento',custo:0,obs:'Escolha entre Ágil, Carismático, Forte, Gênio, Resoluto ou Vigoroso'},{nome:'Xenobiologia',custo:0,obs:'Pode usar vantagem por metade do custo em PM'}],pacoteDesv:[{nome:'Inculto',custo:0}]},
+{id:'anao',nome:'Anão (1 pt)',custo:1,pacoteVant:[{nome:'Abascanto',custo:0,obs:'Ganho em testes de Resistência para evitar/cancelar efeitos ruins'},{nome:'A Ferro e Fogo',custo:0,obs:'+1 ao testar Máquinas; recebe Sentido (Infravisão)'}],pacoteDesv:[{nome:'Lento',custo:0}]},
+{id:'anfibio',nome:'Anfíbio (1 pt)',custo:1,pacoteVant:[{nome:'Imune (Anfíbio)',custo:0,obs:'Respira e se move na água, orientação no escuro'},{nome:'Vigoroso',custo:0}],pacoteDesv:[{nome:'Ambiente',custo:0}]},
+{id:'celestial',nome:'Celestial (1 pt)',custo:1,pacoteVant:[{nome:'Carismático',custo:0},{nome:'Arrebatar',custo:0,obs:'Gaste movimento e 3PM para dar Ganho ao teste de um aliado'}],pacoteDesv:[{nome:'Código',custo:0}]},
+{id:'centauro',nome:'Centauro (2 pt)',custo:2,pacoteVant:[{nome:'Corpo Táurico',custo:0,obs:'Pagar 1PM para crítico 5–6 em testes físicos e correr'},{nome:'Vigoroso',custo:0}],pacoteDesv:[{nome:'Diferente',custo:0,obs:'Não usa roupas/veículos feitos para humanos'}]},
+{id:'ciborgue',nome:'Ciborgue (2 pt)',custo:2,pacoteVant:[{nome:'Construto Vivo',custo:0},{nome:'Imune',custo:0,obs:'Abiótico, Doenças, Resiliente'}],pacoteDesv:[{nome:'Diretriz',custo:0,obs:'Escolha um Código ou Transtorno'}]},
+{id:'construto',nome:'Construto (1 pt)',custo:1,pacoteVant:[{nome:'Imune',custo:0,obs:'Abiótico, Doenças, Resiliente, Sem Mente'},{nome:'Bateria',custo:0,obs:'Precisa recarregar energia'}],pacoteDesv:[{nome:'Sem Vida',custo:0}]},
+{id:'dahllan',nome:'Dahllan (1 pt)',custo:1,pacoteVant:[{nome:'Benção da Natureza',custo:0,obs:'Gaste movimento e 2PM para pele de árvore; Ganho em Defesa'},{nome:'Empatia Selvagem',custo:0,obs:'+1 ao testar Animais'}],pacoteDesv:[{nome:'Código Dahllan',custo:0,obs:'Vegana; nunca atacar ou negar ajuda a animal'}]},
+{id:'elfo',nome:'Elfo (1 pt)',custo:1,pacoteVant:[{nome:'Impecável',custo:0,obs:'Escolha Ágil, Carismático ou Gênio'},{nome:'Natureza Mística',custo:0,obs:'+1 ao testar Mística'}],pacoteDesv:[{nome:'Frágil',custo:0}]},
+{id:'fada',nome:'Fada (1 pt)',custo:1,pacoteVant:[{nome:'Magia das Fadas',custo:0,obs:'Escolha Magia ou Ilusão; gasta –1PM para usar'}],pacoteDesv:[{nome:'Infame',custo:0},{nome:'Delicada',custo:0,obs:'Escolha Diferente (pequena) ou Frágil (normal)'}]},
+{id:'fantasma',nome:'Fantasma (2 pt)',custo:2,pacoteVant:[{nome:'Espírito',custo:0,obs:'Imaterial; gasta PM para se tornar sólido; Imune; Sem Vida'},{nome:'Paralisia',custo:0,obs:'Aura de pânico'}],pacoteDesv:[{nome:'Devoto',custo:0,obs:'Preso a este mundo por promessa/missão'}]},
+{id:'goblin',nome:'Goblin (1 pt)',custo:1,pacoteVant:[{nome:'Espertalhão',custo:0,obs:'+1 ao testar Manha'},{nome:'Subterrâneo',custo:0,obs:'Sentido Infravisão; Ganho em Resistência a doenças e venenos'}],pacoteDesv:[{nome:'Diferente',custo:0}]},
+{id:'hynne',nome:'Hynne (1 pt)',custo:1,pacoteVant:[{nome:'Atirador',custo:0,obs:'Gaste 2PM para Ganho em ataque Longe'},{nome:'Encantador',custo:0,obs:'+1 ao testar Influência'}],pacoteDesv:[{nome:'Diferente',custo:0}]},
+{id:'kallyanach',nome:'Kallyanach (2 pt)',custo:2,pacoteVant:[{nome:'Baforada',custo:0,obs:'Recebe Ataque Especial (Área/Distante/Potente) com –1PM'},{nome:'Poder Dracônico',custo:0,obs:'Escolha Forte ou Carismático'}],pacoteDesv:[{nome:'Código dos Dragões',custo:0}]},
+{id:'kemono',nome:'Kemono (1 pt)',custo:1,pacoteVant:[{nome:'Percepção Apurada',custo:0,obs:'+1 ao testar Percepção'},{nome:'Talento',custo:0,obs:'Escolha entre Ágil, Carismático, Forte, Gênio, Resoluto ou Vigoroso'}],pacoteDesv:[{nome:'Cacoete',custo:0,obs:'Escolha Antipático, Atrapalhado, Fracote, Frágil, Indeciso ou Tapado'}]},
+{id:'medusa',nome:'Medusa (1 pt)',custo:1,pacoteVant:[{nome:'Carismático',custo:0},{nome:'Olhar Atordoante',custo:0,obs:'Gaste movimento e 3PM para paralisar alvo próximo'}],pacoteDesv:[{nome:'Fracote',custo:0}]},
+{id:'minotauro',nome:'Minotauro (1 pt)',custo:1,pacoteVant:[{nome:'Atlético',custo:0,obs:'+1 ao testar Esporte'},{nome:'Sentido Labiríntico',custo:0,obs:'Sempre sabe caminho; Ganho em Percepção para farejar'}],pacoteDesv:[{nome:'Transtorno (Fobia)',custo:0,obs:'Medo de altura'}]},
+{id:'ogro',nome:'Ogro (1 pt)',custo:1,pacoteVant:[{nome:'Destruidor',custo:0,obs:'Critico Perto +2PM soma Poder extra'},{nome:'Intimidador',custo:0,obs:'Ganho em testes de Influência para assustar'}],pacoteDesv:[{nome:'Diferente',custo:0}]},
+{id:'osteon',nome:'Osteon (2 pt)',custo:2,pacoteVant:[{nome:'Imune',custo:0,obs:'Abiótico, Doenças, Resiliente'},{nome:'Memória Póstuma',custo:0,obs:'Escolha uma perícia; +1 ao testá-la'}],pacoteDesv:[{nome:'Sem Vida',custo:0}]},
+{id:'qareen',nome:'Qareen (2 pt)',custo:2,pacoteVant:[{nome:'Desejos',custo:0,obs:'Vantagem Magia; –2PM se lançar magia pedida por outro'},{nome:'Carismático',custo:0}],pacoteDesv:[{nome:'Código da Gratidão',custo:0,obs:'Adota amo até pagar dívida'}]},
+{id:'sauroide',nome:'Sauroide (2 pt)',custo:2,pacoteVant:[{nome:'Cascudo',custo:0,obs:'Recebe Resoluto e Vigoroso'},{nome:'Camuflagem',custo:0,obs:'Ganho em testes para se esconder'}],pacoteDesv:[{nome:'Fraqueza (Frio)',custo:0}]},
+{id:'vampiro',nome:'Vampiro (1 pt)',custo:1,pacoteVant:[{nome:'Talento',custo:0,obs:'Escolha entre Ágil, Carismático, Forte, Gênio, Resoluto ou Vigoroso'},{nome:'Imortal',custo:0,obs:'Revive após virar cinzas'}],pacoteDesv:[{nome:'Fraqueza (luz do dia)',custo:0}]},
+{id:'custom',nome:'— Personalizado…',custo:0,pacoteVant:[],pacoteDesv:[]}
+]
+};
+
+  const state = {
+    nome: '', jogador: '',
+    buildPoints: 18,
+    arquetipo: 'humano',
+    arquetipoCusto: 0,
+    atributos: { P: 1, H: 1, R: 1 },
+    pericias: [], // {nome, custo}
+    vantagens: [], // {nome, custo, obs}
+    desvantagens: [], // {nome, custo, obs}
+    tecnicas: [], // {nome, tipo, custo, req}
+    pvAtual: 0, pmAtual: 0, inventario: '', notas: '',
+    xpTotal: 0
+  };
+
+  // ---------------------------
+  // Persistência
+  // ---------------------------
+  const STORAGE_KEY = 'ficha-3det-victory-v1';
+  function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+  function load() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    try { Object.assign(state, JSON.parse(raw)); } catch {}
+  }
+
+  // ---------------------------
+  // Render helpers
+  // ---------------------------
+  function renderSelects() {
+    // Arquétipos
+    const sel = $('#arquetipo');
+    sel.innerHTML = '';
+    defaultCatalogs.arquetipos.forEach(a => {
+      const opt = document.createElement('option');
+      opt.value = a.id; opt.textContent = a.nome; sel.appendChild(opt);
+    });
+    sel.value = state.arquetipo;
+
+    // Loja de vantagens / desvantagens
+    const vantSel = $('#vantagemCatalog'); vantSel.innerHTML = '';
+    defaultCatalogs.vantagens.forEach(v => {
+      const opt = document.createElement('option');
+      opt.value = v.nome; opt.textContent = `${v.nome} (+${v.custo}pt)`; vantSel.appendChild(opt);
+    });
+    const desvSel = $('#desvantagemCatalog'); desvSel.innerHTML = '';
+    defaultCatalogs.desvantagens.forEach(d => {
+      const opt = document.createElement('option');
+      opt.value = d.nome; opt.textContent = `${d.nome} (${d.custo}pt)`; desvSel.appendChild(opt);
+    });
+  }
+
+  function renderPericias() {
+    const tbody = $('#tblPericias tbody'); tbody.innerHTML = '';
+    state.pericias.forEach((p, i) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${p.nome}</td>
+        <td class="right">${p.custo}</td>
+        <td class="right"><button data-i="${i}" class="secondary btn-del-pericia">Remover</button></td>`;
+      tbody.appendChild(tr);
+    });
+    $('#periciasTotal').textContent = state.pericias.reduce((s,x)=>s+x.custo,0);
+  }
+
+  function renderVantagens() {
+    const tbody = $('#tblVantagens tbody'); tbody.innerHTML = '';
+    state.vantagens.forEach((v, i) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${v.nome}</td><td>${v.obs||''}</td>
+        <td class="right">${v.custo}</td>
+        <td class="right"><button data-i="${i}" class="secondary btn-del-vant">Remover</button></td>`;
+      tbody.appendChild(tr);
+    });
+    $('#vantTotal').textContent = state.vantagens.reduce((s,x)=>s+x.custo,0);
+  }
+
+  function renderDesvantagens() {
+    const tbody = $('#tblDesvantagens tbody'); tbody.innerHTML = '';
+    state.desvantagens.forEach((d, i) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${d.nome}</td><td>${d.obs||''}</td>
+        <td class="right">${d.custo}</td>
+        <td class="right"><button data-i="${i}" class="secondary btn-del-desv">Remover</button></td>`;
+      tbody.appendChild(tr);
+    });
+    const total = state.desvantagens.reduce((s,x)=>s+x.custo,0);
+    $('#desvTotal').textContent = total;
+    // Aviso de limite recomendado −2
+    $('#desvAviso').style.display = (total < -2) ? 'block' : 'none';
+  }
+
+  function applyArquetipoPackages() {
+    // Limpa pacotes antigos de arquétipo
+    state.vantagens = state.vantagens.filter(v=>!v._fromArq);
+    state.desvantagens = state.desvantagens.filter(d=>!d._fromArq);
+
+    const arq = defaultCatalogs.arquetipos.find(a=>a.id===state.arquetipo);
+    state.arquetipoCusto = arq ? arq.custo : 0;
+    if (!arq) return;
+    arq.pacoteVant.forEach(v => state.vantagens.push({...v, _fromArq: true}));
+    arq.pacoteDesv.forEach(d => state.desvantagens.push({...d, _fromArq: true}));
+  }
+
+  function derived() {
+    const P = Number(state.atributos.P)||0;
+    const H = Number(state.atributos.H)||0;
+    const R = Number(state.atributos.R)||0;
+    const basePA = P;
+    const basePM = H * 5;
+    const basePV = R * 5;
+
+    // Bônus de +Vida
+    const bonusVida = state.vantagens.filter(v=>v.nome.startsWith('+Vida')).length * 10;
+
+    $('#pa').textContent = basePA;
+    $('#pm').textContent = basePM;
+    $('#pv').textContent = basePV + bonusVida;
+
+    // Ajusta atuais se forem maiores que máximos
+    if (state.pmAtual > basePM) state.pmAtual = basePM;
+    if (state.pvAtual > basePV + bonusVida) state.pvAtual = basePV + bonusVida;
+    $('#pmAtual').value = state.pmAtual;
+    $('#pvAtual').value = state.pvAtual;
+  }
+
+  function renderResumo() {
+    const ptsAtributos = Number(state.atributos.P) + Number(state.atributos.H) + Number(state.atributos.R);
+    const ptsPericias = state.pericias.reduce((s,x)=>s+x.custo,0);
+    const ptsVantagens = state.vantagens.reduce((s,x)=>s+x.custo,0);
+    const ptsDesvantagens = state.desvantagens.reduce((s,x)=>s+x.custo,0);
+    const ptsArquetipo = state.arquetipoCusto || 0;
+    const total = ptsAtributos + ptsPericias + ptsVantagens + ptsArquetipo + ptsDesvantagens;
+
+    $('#ptsAtributos').textContent = ptsAtributos;
+    $('#ptsPericias').textContent = ptsPericias;
+    $('#ptsVantagens').textContent = ptsVantagens;
+    $('#ptsDesvantagens').textContent = ptsDesvantagens;
+    $('#ptsArquetipo').textContent = ptsArquetipo;
+    $('#totalGasto').textContent = total;
+
+    const restantes = (Number(state.buildPoints)||0) - total;
+    const ptsRest = $('#ptsRest'); ptsRest.textContent = restantes;
+    ptsRest.style.color = restantes < 0 ? 'var(--danger)' : 'var(--ok)';
+  }
+
+  function renderXP() {
+    const xp = Number(state.xpTotal)||0;
+    let pts = Math.floor(xp/10);
+
+    // Classificação baseada nos pontos por XP
+    let classe = 'Iniciante';
+    if (pts >= 35) classe = 'Veterano';
+    else if (pts >= 20) classe = 'Herói';
+
+    $('#xpPts').textContent = pts;
+    $('#xpClass').textContent = classe;
+    $('#xpTotal').value = xp;
+  }
+
+  function renderAll() {
+    $('#nome').value = state.nome || '';
+    $('#jogador').value = state.jogador || '';
+    $('#buildPoints').value = state.buildPoints;
+    $('#attrP').value = state.atributos.P;
+    $('#attrH').value = state.atributos.H;
+    $('#attrR').value = state.atributos.R;
+    $('#inventario').value = state.inventario || '';
+    $('#notas').value = state.notas || '';
+
+    renderSelects();
+    applyArquetipoPackages();
+    renderPericias();
+    renderVantagens();
+    renderDesvantagens();
+    derived();
+    renderResumo();
+    renderXP();
+  }
+
+  // ---------------------------
+  // Eventos
+  // ---------------------------
+  function bind() {
+    $('#nome').addEventListener('input', e => { state.nome = e.target.value; save(); });
+    $('#jogador').addEventListener('input', e => { state.jogador = e.target.value; save(); });
+    $('#buildPoints').addEventListener('input', e => { state.buildPoints = Number(e.target.value)||0; save(); renderResumo(); });
+
+    $('#attrP').addEventListener('input', e => { state.atributos.P = Number(e.target.value)||0; save(); derived(); renderResumo(); });
+    $('#attrH').addEventListener('input', e => { state.atributos.H = Number(e.target.value)||0; save(); derived(); renderResumo(); });
+    $('#attrR').addEventListener('input', e => { state.atributos.R = Number(e.target.value)||0; save(); derived(); renderResumo(); });
+
+    $('#pvAtual').addEventListener('input', e => { state.pvAtual = Number(e.target.value)||0; save(); });
+    $('#pmAtual').addEventListener('input', e => { state.pmAtual = Number(e.target.value)||0; save(); });
+    $('#inventario').addEventListener('input', e => { state.inventario = e.target.value; save(); });
+    $('#notas').addEventListener('input', e => { state.notas = e.target.value; save(); });
+
+    $('#arquetipo').addEventListener('change', e => {
+      state.arquetipo = e.target.value; save();
+      applyArquetipoPackages(); renderVantagens(); renderDesvantagens(); renderResumo();
+    });
+
+    // Perícias
+    $('#addPericia').addEventListener('click', () => {
+      const nome = ($('#novaPericiaNome').value||'').trim();
+      if (!nome) return;
+      state.pericias.push({nome, custo: 1});
+      $('#novaPericiaNome').value=''; save(); renderPericias(); renderResumo();
+    });
+    document.addEventListener('click', e => {
+      if (e.target.classList.contains('btn-del-pericia')) { const i = Number(e.target.dataset.i); state.pericias.splice(i,1); save(); renderPericias(); renderResumo(); }
+      if (e.target.classList.contains('btn-del-vant'))   { const i = Number(e.target.dataset.i); state.vantagens.splice(i,1); save(); renderVantagens(); derived(); renderResumo(); }
+      if (e.target.classList.contains('btn-del-desv'))   { const i = Number(e.target.dataset.i); state.desvantagens.splice(i,1); save(); renderDesvantagens(); renderResumo(); }
+      if (e.target.classList.contains('btn-del-tec'))    { const i = Number(e.target.dataset.i); state.tecnicas.splice(i,1); save(); renderTecnicas(); }
+    });
+
+    // Vantagens
+    $('#addVantagem').addEventListener('click', () => {
+      const nome = ($('#vantNome').value||'').trim();
+      const custo = Number($('#vantCusto').value)||0;
+      const obs = ($('#vantObs').value||'').trim();
+      if (!nome) return;
+      state.vantagens.push({nome, custo, obs});
+      // efeito rápido: +Vida ajusta PV
+      if (nome.startsWith('+Vida')) { derived(); }
+      $('#vantNome').value=''; $('#vantCusto').value='1'; $('#vantObs').value='';
+      save(); renderVantagens(); renderResumo();
+    });
+    $('#addVantagemFromCatalog').addEventListener('click', () => {
+      const nome = $('#vantagemCatalog').value;
+      const v = defaultCatalogs.vantagens.find(x=>x.nome===nome);
+      if (!v) return;
+      state.vantagens.push({nome: v.nome, custo: v.custo, obs: v.obs});
+      if (v.nome.startsWith('+Vida')) { derived(); }
+      save(); renderVantagens(); renderResumo();
+    });
+
+    // Desvantagens
+    $('#addDesvantagem').addEventListener('click', () => {
+      const nome = ($('#desvNome').value||'').trim();
+      const custo = Number($('#desvCusto').value)||0;
+      const obs = ($('#desvObs').value||'').trim();
+      if (!nome) return;
+      state.desvantagens.push({nome, custo, obs});
+      $('#desvNome').value=''; $('#desvCusto').value='-1'; $('#desvObs').value='';
+      save(); renderDesvantagens(); renderResumo();
+    });
+    $('#addDesvantagemFromCatalog').addEventListener('click', () => {
+      const nome = $('#desvantagemCatalog').value;
+      const d = defaultCatalogs.desvantagens.find(x=>x.nome===nome);
+      if (!d) return;
+      state.desvantagens.push({nome: d.nome, custo: d.custo, obs: d.obs});
+      save(); renderDesvantagens(); renderResumo();
+    });
+
+    // Técnicas
+    function renderTecnicas(){
+      const tbody = $('#tblTecnicas tbody'); tbody.innerHTML='';
+      state.tecnicas.forEach((t,i)=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${t.nome}</td><td>${t.tipo||''}</td><td>${t.req||''}</td>`+
+          `<td class=right>${t.custo||0}</td><td class=right><button data-i="${i}" class="secondary btn-del-tec">Remover</button></td>`;
+        tbody.appendChild(tr);
+      });
+    }
+    $('#addTecnica').addEventListener('click', ()=>{
+      const nome = ($('#tecNome').value||'').trim(); if(!nome) return;
+      state.tecnicas.push({
+        nome,
+        tipo: ($('#tecTipo').value||'').trim(),
+        custo: Number($('#tecCusto').value)||0,
+        req: ($('#tecReq').value||'').trim()
+      });
+      $('#tecNome').value=''; $('#tecTipo').value=''; $('#tecCusto').value='0'; $('#tecReq').value='';
+      save(); renderTecnicas();
+    });
+    // Expor para re-render em load
+    window.renderTecnicas = renderTecnicas;
+
+    // Export / Import / Print / Reset
+    $('#exportBtn').addEventListener('click', () => {
+      const blob = new Blob([JSON.stringify(state, null, 2)], {type: 'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `ficha-3det-${(state.nome||'personagem').toLowerCase().replace(/[^a-z0-9-_]+/g,'-')}.json`;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url), 5000);
+    });
+
+    $('#importBtn').addEventListener('click', () => $('#importFile').click());
+    $('#importFile').addEventListener('change', (e) => {
+      const file = e.target.files[0]; if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try { const data = JSON.parse(reader.result); Object.assign(state, data); save(); renderAll(); window.renderTecnicas(); }
+        catch(err){ alert('Arquivo inválido.'); }
+      };
+      reader.readAsText(file);
+      e.target.value = '';
+    });
+
+    $('#printBtn').addEventListener('click', () => window.print());
+    $('#resetBtn').addEventListener('click', () => {
+      if (!confirm('Zerar toda a ficha?')) return;
+      localStorage.removeItem(STORAGE_KEY); location.reload();
+    });
+    $('#tutorialBtn').addEventListener('click', () => {
+      window.location.href = 'tutorial.html';
+    });
+  }
+
+  // ---------------------------
+  // Boot
+  // ---------------------------
+  load();
+  document.addEventListener('DOMContentLoaded', () => {
+    renderAll();
+    bind();
+    window.renderTecnicas();
+  });
+  </script>
+</body>
+</html>

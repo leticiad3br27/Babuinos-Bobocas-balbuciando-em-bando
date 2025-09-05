@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Guia Rápido de Ainran — 3D&T Victory</title>
+  <style>
+    :root {
+      --bg-1: #0f0e0c;
+      --bg-2: #1a1815;
+      --paper: #f7f1df;
+      --ink: #27241d;
+      --gold: #c9a227;
+      --accent: #8b5d0a;
+      --muted: #9c8c6a;
+      --edge: rgba(0,0,0,.35);
+      --ring: rgba(201,162,39,.35);
+    }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+      background: radial-gradient(1200px 600px at 30% -10%, #2b261c 0%, var(--bg-1) 35%, var(--bg-2) 100%);
+      color: #eae5d7;
+      line-height: 1.6;
+    }
+
+    /* Layout */
+    .wrap {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    @media (max-width: 600px) {
+      .wrap {
+        padding: 8px;
+      }
+    }
+
+    header.hero {
+      position: relative;
+      border: 1px solid var(--edge);
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.2));
+      padding: 28px 24px 22px 24px;
+      border-radius: 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.05);
+      overflow: hidden;
+    }
+    @media (max-width: 600px) {
+      header.hero {
+        padding: 16px 8px 12px 8px;
+      }
+    }
+
+    .hero:before, .hero:after {
+      content: "";
+      position: absolute;
+      inset: -2px;
+      border-radius: 20px;
+      border: 2px solid transparent;
+      background: linear-gradient(140deg, rgba(255,255,255,.2), rgba(201,162,39,.4)) border-box;
+      -webkit-mask:
+        linear-gradient(#000 0 0) padding-box,
+        linear-gradient(#000 0 0);
+      mask:
+        linear-gradient(#000 0 0) padding-box,
+        linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+              mask-composite: exclude;
+      opacity: .18;
+      pointer-events: none;
+    }
+    .hero h1 {
+      font-size: clamp(1.8rem, 1.1rem + 2.6vw, 3.2rem);
+      margin: 0 0 6px 0;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 0 rgba(0,0,0,.35);
+    }
+    .subtitle { color: #e8d9ad; margin: 0; font-size: 1rem; opacity: .9; }
+
+    .sigil {
+      display: inline-flex; align-items: center; gap: 10px; margin-top: 12px;
+      font-variant: small-caps; letter-spacing: .12em; color: var(--muted);
+    }
+    .sigil .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 6px var(--ring), 0 0 20px var(--gold); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 22px;
+      margin-top: 22px;
+    }
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .grid {
+        gap: 10px;
+        margin-top: 10px;
+      }
+    }
+
+    .parchment {
+      background: var(--paper);
+      color: var(--ink);
+      border-radius: 16px;
+      border: 1px solid rgba(0,0,0,.08);
+      box-shadow:
+        0 8px 20px rgba(0,0,0,.35),
+        inset 0 1px 0 rgba(255,255,255,.5);
+      padding: 22px;
+      position: relative;
+      overflow: clip;
+      isolation: isolate;
+    }
+    @media (max-width: 600px) {
+      .parchment {
+        padding: 10px 4px;
+        font-size: 0.98rem;
+      }
+    }
+    .parchment:before {
+      content: "";
+      position: absolute; inset: 0; z-index: -1;
+      background:
+        radial-gradient(120px 40px at 20% -10%, rgba(0,0,0,.12), transparent 60%),
+        radial-gradient(120px 40px at 80% -10%, rgba(0,0,0,.12), transparent 60%),
+        radial-gradient(200px 60px at 50% 110%, rgba(0,0,0,.12), transparent 70%);
+      filter: blur(.2px);
+    }
+
+    h2 {
+      font-size: clamp(1.2rem, 1rem + 1.2vw, 1.7rem);
+      margin: 0 0 10px 0;
+      color: #2e2612;
+    }
+    @media (max-width: 600px) {
+      h2 { font-size: 1.1rem; }
+    }
+
+    h3 { margin: 18px 0 8px 0; color: #43361a; }
+    p { margin: 10px 0; }
+
+    .callout {
+      border-left: 4px solid var(--gold);
+      padding: 8px 12px;
+      background: #fbf7ea;
+      border-radius: 8px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.6);
+    }
+
+    .kbd { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .92em; background: #efe6c9; padding: 1px 6px; border-radius: 6px; border: 1px solid #e0d3a3; }
+
+    .list { columns: 2; gap: 24px; }
+    @media (max-width: 700px){ .list { columns: 1; } }
+    @media (max-width: 600px){ .list { font-size: 0.98em; } }
+    .list li { break-inside: avoid; margin: 6px 0; }
+
+    .badge {
+      display: inline-block; padding: 4px 10px; border-radius: 999px;
+      background: #efe2b8; color: #4a3b11; border: 1px solid #e5d69b; font-weight: 600;
+    }
+
+    .statline {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin: 10px 0 14px;
+    }
+    @media (max-width: 600px) {
+      .statline {
+        grid-template-columns: 1fr;
+        gap: 4px;
+      }
+    }
+    .statline .stat { background: #f6edd0; border: 1px solid #e7dbad; border-radius: 10px; padding: 10px; text-align: center; }
+    .small { font-size: .92rem; color: #5a4f34; }
+
+    .map-card { display: grid; gap: 12px; }
+    .map-frame {
+      aspect-ratio: 16/9;
+      width: 100%;
+      background:
+        radial-gradient(120px 60px at 20% 20%, rgba(0,0,0,.12), transparent 60%),
+        repeating-linear-gradient(0deg, rgba(0,0,0,.06) 0 2px, rgba(0,0,0,.03) 2px 4px),
+        linear-gradient(180deg, #f1ead3, #e9dfbe);
+      border: 2px dashed #c1b07a;
+      border-radius: 14px;
+      display: grid; place-items: center;
+      color: #6b5a2a; text-align: center; padding: 14px;
+    }
+    @media (max-width: 600px) {
+      .map-frame {
+        padding: 4px;
+        font-size: 0.95em;
+      }
+    }
+    .map-frame img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; display: none; }
+    .map-help { font-size: .95rem; color: #6b5a2a; }
+
+    .footer {
+      margin: 24px 0 4px; text-align: center; color: #b8a986; font-size: .95rem;
+    }
+    .hr { height: 1px; background: linear-gradient(90deg, transparent, rgba(201,162,39,.6), transparent); margin: 16px 0; opacity: .7; }
+
+    /* Print tweaks */
+    @media print {
+      body { background: white; color: #111; }
+      .hero { box-shadow: none; background: transparent; border: none; }
+      .parchment { box-shadow: none; }
+      .wrap { padding: 0; }
+      .footer { color: #444; }
+    }
+
+    /* Ajuste para títulos e textos em telas pequenas */
+    @media (max-width: 400px) {
+      h1 { font-size: 1.2rem !important; }
+      .subtitle { font-size: 0.95rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <h1>Guia Rápido de <span style="color: var(--gold); text-shadow: 0 0 12px rgba(201,162,39,.35)">Ainran</span></h1>
+      <p class="subtitle">Um cenário medieval para 3D&T Victory — crônicas narradas à luz de tochas, em uma terra longe da nossa, acessível a todos, mas encontrada por poucos.</p>
+      <div class="sigil"><span class="dot"></span> Crônicas do Armário • Edição do Narrador • v1.0</div>
+    </header>
+
+    <section class="grid" aria-label="Guia principal">
+      <!-- Coluna esquerda: narrativa + regras -->
+      <article class="parchment" aria-labelledby="narrativa">
+        <h2 id="narrativa">Prólogo do Narrador</h2>
+        <p>
+          Prestem atenção, viajantes. Nosso mundo chama-se <strong>Ainran</strong> — um espelho distante, onde os ventos sussurram nomes de reis esquecidos e as estrelas lembram pactos antigos. Qualquer um pode alcançar Ainran, mas poucos a <em>encontram</em>. Vocês a descobriram do modo mais improvável: atravessando a madeira rangente de um <strong>armário</strong> — um portal caprichoso que escolhe heróis quando o coração pede aventura.
+        </p>
+        <p>
+          Aqui, estradas levam a vilas cercadas por sebes, masmorras velam relíquias, e castelos vigiam vales nevoentos. Seus passos escreverão as crônicas; eu, Narrador, mantenho só a tocha acesa. Seguem as regras rápidas para que não tropecem na escuridão.
+        </p>
+
+        <div class="hr"></div>
+
+        <h2>Como Jogar (em 3 respirações)</h2>
+        <ol>
+          <li><strong>Role dados</strong> (1–3d6) e some um atributo relevante.</li>
+          <li><strong>Compare com a meta</strong> definida pelo Narrador — Fácil 6+, Média 9+, Difícil 12+.</li>
+          <li><strong>Descreva a cena</strong>: sucesso brilha, falha ensina. A história segue.</li>
+        </ol>
+
+        <h3>Atributos</h3>
+        <p class="small">Comece com <span class="badge">10 pontos</span> para distribuir entre três pilares (0–5):</p>
+        <div class="statline">
+          <div class="stat"><strong>Poder (P)</strong><br><span class="small">Força, presença e impacto. Define <strong>PA</strong>.</span></div>
+          <div class="stat"><strong>Habilidade (H)</strong><br><span class="small">Agilidade, reflexo e engenho. Define <strong>PM</strong>.</span></div>
+          <div class="stat"><strong>Resistência (R)</strong><br><span class="small">Vigor e teimosia vital. Define <strong>PV</strong>.</span></div>
+        </div>
+        <p><span class="kbd">PV = R × 5</span> • <span class="kbd">PM = H × 5</span> • <span class="kbd">PA = P</span></p>
+
+        <h3>Perícias</h3>
+        <p>Cada perícia custa 1 ponto e, quando usada, concede <strong>+1 dado</strong> ao teste. Exemplos úteis em Ainran:</p>
+        <ul class="list">
+          <li>Luta (armas, tática).</li>
+          <li>Sobrevivência (rastrear, acampar, caçar).</li>
+          <li>Influência (diplomacia, liderança, intimidação).</li>
+          <li>Medicina (curar ferimentos e venenos).</li>
+          <li>Mística (magia, monstros e rituais).</li>
+        </ul>
+
+        <h3>Vantagens e Desvantagens</h3>
+        <p>
+          Vantagens são dádivas — <em>Ágil</em>, <em>Carismático</em>, <em>Magia</em>, <em>Ataque Especial</em>, <em>Artefato</em>. Desvantagens são sombras — <em>Frágil</em>, <em>Indeciso</em>, <em>Antipático</em>, <em>Código de Honra dos Cavaleiros</em>. 
+        </p>
+
+        <h3>Combate</h3>
+        <ul>
+          <li><strong>Iniciativa</strong>: 1d + H. Maior age primeiro.</li>
+          <li><strong>Turno</strong>: agir (atacar, magia, manobra) + mover.</li>
+          <li><strong>Ataque</strong>: role, some o atributo/perícia, compare à defesa inimiga. <em>6</em> natural explode (role novamente e some).</li>
+          <li><strong>Queda</strong>: a 0 PV, fora de combate (nem sempre morto).</li>
+        </ul>
+
+        <h3>Avanço</h3>
+        <p>Ganhe XP por metas cumpridas e boa interpretação. Gaste para elevar atributos, perícias e vantagens. Cresçam como lendas — ou advertências.</p>
+      </article>
+
+      <!-- Coluna direita: mapa + criação rápida -->
+      <aside class="parchment" aria-labelledby="mapa">
+        <h2 id="mapa">Mapa de Ainran</h2>
+        <div class="map-card">
+          <div class="map-frame" aria-label="Espaço do mapa">
+            <img id="mapa-ainran" alt="Mapa do mundo de Ainran" />
+            <div class="map-help">
+              Coloque aqui a imagem do seu mapa.<br/>
+              <strong>Como:</strong> no código, defina o <em>src</em> da imagem com o arquivo do seu mapa (ex.: <span class="kbd">img#mapa-ainran.src = 'mapa-ainran.jpg'</span>).
+            </div>
+          </div>
+          <div class="callout">
+            <strong>Ganchos do Narrador:</strong>
+            <ul>
+              <li>O armário abre em <em>Quinta Nascente</em>, uma vila de feiras e segredos.</li>
+              <li>Runas antigas falam de uma torre que só aparece sob lua nova.</li>
+              <li>Uma estrada sem quilhas leva à <em>Masmorra dos Três Sinos</em>.</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3>Criação Rápida de Heróis</h3>
+        <ol>
+          <li>Distribua <strong>10 pontos</strong> entre P, H e R.</li>
+          <li>Escolha <strong>2–4 perícias</strong> que mostrem quem você é.</li>
+          <li>Pegue <strong>1–2 vantagens</strong> (e, se quiser, 1 desvantagem para ganhar pontos).</li>
+          <li>Defina um <strong>Arquétipo</strong> e um detalhe do passado no nosso mundo (o antes do armário).</li>
+        </ol>
+        <p class="small"><em>Dica:</em> pense em uma frase-âncora: “Sou um <strong>Cavaleiro</strong> teimoso que protege os fracos porque falhei uma vez na Terra.”</p>
+
+        <h3>Arquétipos de Ainran</h3>
+        <ul class="list">
+          <li><strong>Cavaleiro</strong>: aço, honra e juramentos.</li>
+          <li><strong>Ladino</strong>: passos leves, fechaduras pesadas.</li>
+          <li><strong>Arqueiro</strong>: olhos de falcão, paciência de carvalho.</li>
+          <li><strong>Clérigo</strong>: fé que cura e confronta o abismo.</li>
+          <li><strong>Mago</strong>: palavras antigas, preços modernos.</li>
+          <li><strong>Bárbaro</strong>: fúria como tempestade de inverno.</li>
+        </ul>
+      </aside>
+    </section>
+
+
+    <p class="footer">Ainran — onde a coragem encontra o caminho. Que suas rolagens cantem histórias.</p>
+  </div>
+
+  <!-- Opcional: defina o src do mapa aqui -->
+  <script>
+    // Exemplo: descomente e aponte para seu arquivo
+    // document.getElementById('mapa-ainran').src = 'mapa-ainran.jpg';
+    // document.getElementById('mapa-ainran').style.display = 'block';
+  </script>
+</body>
+</html>
