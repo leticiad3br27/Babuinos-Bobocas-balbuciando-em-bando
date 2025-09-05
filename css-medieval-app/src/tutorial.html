@@ -188,6 +188,7 @@
       border-radius: 14px;
       display: grid; place-items: center;
       color: #6b5a2a; text-align: center; padding: 14px;
+      overflow: hidden; /* Adicionado para evitar overflow da imagem */
     }
     @media (max-width: 600px) {
       .map-frame {
@@ -195,7 +196,17 @@
         font-size: 0.95em;
       }
     }
-    .map-frame img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; display: none; }
+    /* Melhoria para a imagem do mapa */
+    .map-frame img {
+      width: 100%;
+      height: 100%;
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain; /* Garante que a imagem não distorça */
+      border-radius: 12px;
+      display: none;
+      background: #e9dfbe;
+    }
     .map-help { font-size: .95rem; color: #6b5a2a; }
 
     .footer {
@@ -289,10 +300,7 @@
         <div class="map-card">
           <div class="map-frame" aria-label="Espaço do mapa">
             <img id="mapa-ainran" alt="Mapa do mundo de Ainran" />
-            <div class="map-help">
-              Coloque aqui a imagem do seu mapa.<br/>
-              <strong>Como:</strong> no código, defina o <em>src</em> da imagem com o arquivo do seu mapa (ex.: <span class="kbd">img#mapa-ainran.src = 'mapa-ainran.jpg'</span>).
-            </div>
+           
           </div>
           <div class="callout">
             <strong>Ganchos do Narrador:</strong>
@@ -331,9 +339,8 @@
 
   <!-- Opcional: defina o src do mapa aqui -->
   <script>
-    // Exemplo: descomente e aponte para seu arquivo
-    // document.getElementById('mapa-ainran').src = 'mapa-ainran.jpg';
-    // document.getElementById('mapa-ainran').style.display = 'block';
+    document.getElementById('mapa-ainran').src = 'Rareland 2025-09-04-21-21 (1).jpeg';
+    document.getElementById('mapa-ainran').style.display = 'block';
   </script>
 </body>
 </html>
